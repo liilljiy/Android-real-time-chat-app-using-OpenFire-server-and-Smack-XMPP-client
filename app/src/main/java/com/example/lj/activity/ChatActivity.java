@@ -179,9 +179,8 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == LOADER_ID) {
             chatMessageAdapter.swapCursor(data);
-            lvChatMessages.setSelection(chatMessageAdapter.getCount() - 1);
+//          lvChatMessages.setSelection(chatMessageAdapter.getCount() - 1);
             // 移除滚动到最后一项的代码，因为最新的消息已经在顶部了
-            // lvChatMessages.setSelection(chatMessageAdapter.getCount() - 1);
         }
     }
 // ... existing code ...

@@ -52,10 +52,10 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp"
                 android:background="@android:color/transparent"
-                android:scaleType="centerInside"
-                android:src="@mipmap/ic_lanuncher_feeling"
                 android:contentDescription="发送表情"
-                android:padding="4dp" />
+                android:padding="4dp"
+                android:scaleType="centerInside"
+                android:src="@mipmap/ic_lanuncher_feeling" />
 
             <ImageButton
                 android:id="@+id/btn_send_file"
@@ -73,7 +73,7 @@
                 android:id="@+id/btn_send_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="4dp"
                 android:text="发送" />
 
         </LinearLayout>
