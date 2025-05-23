@@ -9,61 +9,80 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.example.lj.R;
-import com.example.lj.dbhelper.SmsOpenHelper; // 导入 SmsOpenHelper
-import com.example.lj.service.IMService; // 导入 IMService
+import com.example.lj.dbhelper.SmsOpenHelper;
+// 导入 IMService 以便获取当前用户账号
+import com.example.lj.service.IMService;
+
 
 public class ChatMessageAdapter extends CursorAdapter {
 
     private static final int VIEW_TYPE_SENT = 0; // 发送的消息类型
     private static final int VIEW_TYPE_RECEIVED = 1; // 接收的消息类型
 
+    private LayoutInflater inflater;
+    private String myAccount; // 添加当前用户账号字段
+
     public ChatMessageAdapter(Context context, Cursor c) {
-        super(context, c, 0); // 使用 flags = 0 (不需要注册 ContentObserver，因为 LoaderManager 会处理)
-    }
-
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        // 根据消息类型选择不同的布局
-        int type = cursor.getInt(cursor.getColumnIndex(SmsOpenHelper.SmsTable.TYPE));
-        View view;
-        if (type == VIEW_TYPE_SENT) {
-            view = LayoutInflater.from(context).inflate(R.layout.item_chat_sent, parent, false);
-        } else { // VIEW_TYPE_RECEIVED
-            view = LayoutInflater.from(context).inflate(R.layout.item_chat_received, parent, false);
-        }
-        return view;
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        // 根据消息类型找到对应的 TextView 并设置消息内容
-        int type = cursor.getInt(cursor.getColumnIndex(SmsOpenHelper.SmsTable.TYPE));
-        String messageBody = cursor.getString(cursor.getColumnIndex(SmsOpenHelper.SmsTable.BODY));
-
-        if (type == VIEW_TYPE_SENT) {
-            TextView tvSentMessageBody = view.findViewById(R.id.tv_chat_sent_message_body);
-            if (tvSentMessageBody != null) {
-                tvSentMessageBody.setText(messageBody);
-            }
-        } else { // VIEW_TYPE_RECEIVED
-            TextView tvReceivedMessageBody = view.findViewById(R.id.tv_chat_received_message_body);
-            if (tvReceivedMessageBody != null) {
-                tvReceivedMessageBody.setText(messageBody);
-            }
-        }
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        // 根据当前行的消息类型返回视图类型
-        Cursor cursor = (Cursor) getItem(position);
-        int type = cursor.getInt(cursor.getColumnIndex(SmsOpenHelper.SmsTable.TYPE));
-        return type == 0 ? VIEW_TYPE_SENT : VIEW_TYPE_RECEIVED;
+        super(context, c, 0);
+        inflater = LayoutInflater.from(context);
+        myAccount = IMService.currentAccount; // 在构造函数中获取当前用户账号
     }
 
     @Override
     public int getViewTypeCount() {
-        // 返回视图类型总数
         return 2;
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        Cursor cursor = (Cursor) getItem(position);
+        // 确保getColumnIndexOrThrow能找到列，否则会抛出异常，这里使用get方法
+        int fromAccountColumnIndex = cursor.getColumnIndex(SmsOpenHelper.SmsTable.FROM_ACCOUNT);
+        String fromAccount = "";
+        if (fromAccountColumnIndex != -1) {
+            fromAccount = cursor.getString(fromAccountColumnIndex);
+        }
+
+        // 根据发送者账号判断消息类型
+        if (myAccount != null && fromAccount.equals(myAccount)) {
+            return VIEW_TYPE_SENT; // 当前用户发送的消息
+        } else {
+            return VIEW_TYPE_RECEIVED; // 接收到的消息
+        }
+    }
+
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        int viewType = getItemViewType(cursor.getPosition());
+        int layoutId = (viewType == VIEW_TYPE_SENT) ? R.layout.item_chat_sent : R.layout.item_chat_received;
+        return inflater.inflate(layoutId, parent, false);
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        int viewType = getItemViewType(cursor.getPosition());
+
+        TextView tvChatMessage;
+        if (viewType == VIEW_TYPE_SENT) {
+            // 发送的消息（当前用户）
+            tvChatMessage = view.findViewById(R.id.tv_chat_sent_message_body);
+        } else {
+            // 接收的消息（对方）
+            tvChatMessage = view.findViewById(R.id.tv_chat_message);
+        }
+
+        if (tvChatMessage != null) {
+            int bodyIndex = cursor.getColumnIndex(SmsOpenHelper.SmsTable.BODY);
+            String body = "";
+            if (bodyIndex != -1) {
+                body = cursor.getString(bodyIndex);
+            }
+            tvChatMessage.setText(body);
+        }
+    }
+
+
+    // 您可能需要一个将时间戳格式化为可读字符串的方法
+    // private String formatTime(long timestamp) { ... }
 }

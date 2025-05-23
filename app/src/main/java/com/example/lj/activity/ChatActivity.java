@@ -51,6 +51,8 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
     private ChatManager chatManager;
     private IncomingChatMessageListener incomingListener;
 
+
+
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -133,7 +135,7 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
                 ContentValues values = new ContentValues();
                 values.put(SmsOpenHelper.SmsTable.FROM_ACCOUNT, myAccount);
                 values.put(SmsOpenHelper.SmsTable.BODY, content);
-                values.put(SmsOpenHelper.SmsTable.TYPE, 1); // 1 表示发送
+                values.put(SmsOpenHelper.SmsTable.TYPE, 0); // 将发送消息的类型改为 0，与 ChatMessageAdapter 中的 VIEW_TYPE_SENT 一致
                 values.put(SmsOpenHelper.SmsTable.TIME, System.currentTimeMillis());
                 values.put(SmsOpenHelper.SmsTable.SESSION_ACCOUNT, contactAccount);
 
@@ -159,14 +161,15 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
         LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this);
     }
 
+    // ... existing code ...
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == LOADER_ID) {
             String selection = SmsOpenHelper.SmsTable.SESSION_ACCOUNT + "=?";
             String[] selectionArgs = new String[]{contactAccount};
+            // 将排序方式改为降序 (DESC)，以便最新的消息在最上面
             String sortOrder = SmsOpenHelper.SmsTable.TIME + " ASC";
-
             return new CursorLoader(this, SmsProvider.URI_SMS, null, selection, selectionArgs, sortOrder);
         }
         return null;
@@ -177,8 +180,11 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
         if (loader.getId() == LOADER_ID) {
             chatMessageAdapter.swapCursor(data);
             lvChatMessages.setSelection(chatMessageAdapter.getCount() - 1);
+            // 移除滚动到最后一项的代码，因为最新的消息已经在顶部了
+            // lvChatMessages.setSelection(chatMessageAdapter.getCount() - 1);
         }
     }
+// ... existing code ...
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {

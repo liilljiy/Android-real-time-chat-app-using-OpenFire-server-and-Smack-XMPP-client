@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_chat_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".activity.ChatActivity">
+    android:orientation="vertical">
 
     <!-- 聊天消息列表 -->
     <ListView
@@ -12,21 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:stackFromBottom="true"
-        android:transcriptMode="alwaysScroll"
         android:divider="@null"
         android:dividerHeight="0dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"/>
+        android:transcriptMode="normal"
+        android:stackFromBottom="true" />
 
-    <!-- 消息输入区域 -->
+    <!-- 底部输入栏 -->
     <LinearLayout
+        android:id="@+id/layout_message_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:background="@android:color/white"
-        android:elevation="4dp">
+        android:background="?android:attr/windowBackground">
 
         <EditText
             android:id="@+id/et_message_input"
@@ -34,15 +31,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="输入消息"
-            android:inputType="textCapSentences|textMultiLine"
-            android:maxLines="4"/>
+            android:maxLines="4"
+            android:minLines="1"
+            android:inputType="textMultiLine"
+            android:background="@android:drawable/edit_text"
+            android:padding="8dp" />
 
         <Button
             android:id="@+id/btn_send_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="发送"
-            android:layout_marginStart="8dp"/>
+            android:layout_marginLeft="8dp" />
+
     </LinearLayout>
 
 </LinearLayout>

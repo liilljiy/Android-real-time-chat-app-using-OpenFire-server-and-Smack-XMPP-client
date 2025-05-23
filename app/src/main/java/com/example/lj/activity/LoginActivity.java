@@ -21,7 +21,8 @@ import java.io.IOException;
 
 public class LoginActivity extends AppCompatActivity {
 
-    public static final String HOST = "10.183.22.4";
+    //public static final String HOST = "10.183.22.4";
+    public static final String HOST = "192.168.150.71";
     public static final int PORT = 5222;
     private ActivityLoginBinding binding;
 
