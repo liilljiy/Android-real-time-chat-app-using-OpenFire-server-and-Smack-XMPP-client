@@ -145,6 +145,9 @@ public class IMService extends Service {
             nickname = account.contains("@") ? account.substring(0, account.indexOf('@')) : account;
         }
 
+        Presence presence = roster.getPresence(entry.getJid());
+
+        cv.put(ContactOpenHelper.ContactTable.STATUS, presence.isAvailable()?"0":"1");
         cv.put(ContactOpenHelper.ContactTable.ACCOUNT, account);
         cv.put(ContactOpenHelper.ContactTable.NICKNAME, nickname);
         cv.put(ContactOpenHelper.ContactTable.AVATAR, "0");
