@@ -28,10 +28,10 @@ public class SessionAdapter extends CursorAdapter {
         TextView tvAccount = view.findViewById(R.id.tv_session_account);
         TextView tvLastMsg = view.findViewById(R.id.tv_last_message);
 
-        String account = cursor.getString(cursor.getColumnIndex(SmsOpenHelper.SmsTable.TO_ACCOUNT)); // 使用 TO_ACCOUNT
+        String account = cursor.getString(cursor.getColumnIndex(SmsOpenHelper.SmsTable.TO_ACCOUNT));
         String body = cursor.getString(cursor.getColumnIndex(SmsOpenHelper.SmsTable.BODY));
 
-        tvAccount.setText(account);
+        tvAccount.setText(account + " : ");
         tvLastMsg.setText(body);
     }
 }
