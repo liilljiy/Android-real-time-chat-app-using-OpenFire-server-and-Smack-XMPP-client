@@ -6,6 +6,13 @@
     android:padding="4dp">
 
     <!-- 发送的消息靠右对齐 -->
+    <ImageView
+        android:id="@+id/iv_contact_icon"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="end"
+        android:src="@drawable/ic_launcher_foreground"
+        android:layout_marginEnd="12dp" />
     <TextView
         android:id="@+id/tv_chat_sent_message_body"
         android:layout_width="wrap_content"

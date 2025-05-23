@@ -5,6 +5,12 @@
     android:orientation="vertical"
     android:padding="4dp">
 
+    <ImageView
+        android:id="@+id/iv_contact_icon"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@mipmap/ic_lanuncher_user"
+        android:layout_marginEnd="12dp" />
     <!-- 接收的消息靠左对齐 -->
     <TextView
         android:id="@+id/tv_chat_message"
