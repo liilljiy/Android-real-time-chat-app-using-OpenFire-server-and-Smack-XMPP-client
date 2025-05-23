@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F9F9F9">
+
+    <EditText
+        android:id="@+id/et_contact"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_edittext"
+        android:padding="12dp"
+        android:hint="请输入联系人账号"
+        android:textSize="16sp"
+        android:textColor="#333"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="12dp"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/btn_add_contact"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:backgroundTint="#2E7BB4"
+        android:textColor="#FFF"
+        android:text="添加联系人"
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="sans-serif-medium" />
+
+
+    <ListView
+        android:id="@+id/lv_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#FFFFFF"
+        android:dividerHeight="10dp"
+        android:background="@drawable/bg_edittext"
+        android:padding="10dp" />
+
+</LinearLayout>

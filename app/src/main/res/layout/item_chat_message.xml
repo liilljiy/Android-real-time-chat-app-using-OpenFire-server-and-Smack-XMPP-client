@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_edittext">
+
+    <ImageView
+        android:id="@+id/iv_contact_icon"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@mipmap/ic_lanuncher_user"
+        android:layout_marginEnd="12dp" />
+
+    <TextView
+        android:id="@+id/tv_contact_account"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="contact@domain"
+        android:textSize="16sp"
+        android:textColor="#333" />
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="状态"
+        android:textSize="14sp"
+        android:textColor="#999"/>
+    <TextView
+        android:id="@+id/tv_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="这是一条消息"
+        android:textSize="16sp"
+        android:textColor="#333" />
+
+</LinearLayout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/chat_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F9F9F9">
+
+    <!-- 聊天记录列表 -->
+    <ListView
+        android:id="@+id/lv_chat"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#FFFFFF"
+        android:dividerHeight="10dp"
+        android:background="@drawable/bg_edittext"
+        android:padding="10dp" />
+
+    <!-- 消息输入框 -->
+    <EditText
+        android:id="@+id/et_message"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_edittext"
+        android:padding="12dp"
+        android:hint="请输入消息"
+        android:textSize="16sp"
+        android:textColor="#333"
+        android:layout_marginTop="12dp"
+        android:inputType="textMultiLine" />
+
+    <!-- 发送按钮 -->
+    <Button
+        android:id="@+id/btn_send"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:backgroundTint="#2E7BB4"
+        android:textColor="#FFF"
+        android:text="发送消息"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-medium" />
+
+</LinearLayout>

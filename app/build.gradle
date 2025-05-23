@@ -1,0 +1,75 @@
+plugins {
+    alias(libs.plugins.android.application)
+
+}
+
+android {
+    namespace 'com.example.lj'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.example.lj"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        javaCompileOptions { annotationProcessorOptions { } }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
+    }
+    viewBinding {
+        enabled = true
+    }
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:deprecation"
+        // 如果有其他参数，可以继续添加
+        // options.compilerArgs << "-parameters"
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs.remove("-Werror")
+    }
+
+}
+
+// ... existing code ...
+dependencies {
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    implementation 'com.belerweb:pinyin4j:2.5.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+    implementation 'androidx.annotation:annotation:1.6.0'
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    // Smack 依赖
+
+    implementation ('org.igniterealtime.smack:smack-android:4.4.6') {
+        exclude group: 'xpp3', module: 'xpp3_min'
+    }
+
+    implementation 'org.igniterealtime.smack:smack-tcp:4.4.6'
+    implementation 'org.igniterealtime.smack:smack-im:4.4.6'
+    implementation 'org.igniterealtime.smack:smack-extensions:4.4.6'
+    implementation 'org.igniterealtime.smack:smack-sasl-provided:4.4.6'
+    implementation 'org.igniterealtime.smack:smack-resolver-dnsjava:4.4.6'
+}
+// ... existing code ...
