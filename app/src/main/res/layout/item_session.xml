@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/iv_contact_icon"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@mipmap/ic_lanuncher_user"
+        android:layout_marginEnd="12dp" />
+
+    <TextView
+        android:id="@+id/tv_session_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="account"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_last_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="最近消息"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#888888"
+        android:textStyle="bold" />
+</LinearLayout>

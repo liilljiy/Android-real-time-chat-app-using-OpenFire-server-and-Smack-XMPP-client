@@ -15,10 +15,12 @@
         android:theme="@style/Theme.Lj"
         tools:targetApi="31">
         <activity
+            android:name=".activity.SessionActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.ChatActivity"
             android:exported="false"
-            android:parentActivityName=".activity.MainActivity"/>
-
+            android:parentActivityName=".activity.MainActivity" />
         <activity
             android:name=".activity.MainActivity"
             android:exported="false" />
@@ -41,13 +43,11 @@
         <provider
             android:name=".provider.ContactProvider"
             android:authorities="com.example.lj.provider.ContactProvider"
-            android:exported="true" />
-
-        <!-- ！！添加 SmsProvider 声明 ！！ -->
+            android:exported="true" /> <!-- ！！添加 SmsProvider 声明 ！！ -->
         <provider
             android:name=".provider.SmsProvider"
             android:authorities="com.example.lj.provider.SmsProvider"
-        android:exported="true" />
+            android:exported="true" />
 
         <service android:name=".service.IMService" />
     </application>
