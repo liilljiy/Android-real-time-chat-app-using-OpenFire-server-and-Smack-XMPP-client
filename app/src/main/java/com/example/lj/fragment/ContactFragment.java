@@ -25,6 +25,11 @@ import com.example.lj.adapter.Contact;
 import com.example.lj.adapter.ContactAdapter;
 import com.example.lj.dbhelper.ContactOpenHelper;
 import com.example.lj.provider.ContactProvider;
+import com.example.lj.service.IMService;
+
+import org.jivesoftware.smack.roster.Roster;
+import org.jxmpp.jid.BareJid;
+import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.ArrayList;
 import java.util.List;

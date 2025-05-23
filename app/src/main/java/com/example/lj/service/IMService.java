@@ -18,17 +18,21 @@ import com.example.lj.utils.MyPinyinHelper;
 import com.example.lj.utils.ThreadUtils;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterListener;
 import org.jxmpp.jid.BareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.Collection;
 import java.util.Map;
@@ -87,14 +91,28 @@ public class IMService extends Service {
                     saveOrUpdate(entry);
                 }
 
+                Presence presence = new Presence(Presence.Type.available);
+                presence.setPriority(24);
+                conn.sendStanza(presence);
+
                 rosterListenerInstance = new MyRosterListener(roster);
                 roster.addRosterListener(rosterListenerInstance);
                 Log.i(TAG, "MyRosterListener added.");
+
+                conn.addAsyncStanzaListener(stanza -> {
+                    if (stanza instanceof Message) {
+                        Message msg = (Message) stanza;
+                        Log.i(TAG, "StanzaListener received message from: " + msg.getFrom() + " to: " + msg.getTo() + " body: " + msg.getBody());
+                    }
+                }, stanza -> stanza instanceof Message);
+
+
 
                 chatManager = ChatManager.getInstanceFor(conn);
                 incomingChatMessageListenerInstance = new MyIncomingChatMessageListener();
                 chatManager.addIncomingListener(incomingChatMessageListenerInstance);
                 Log.i(TAG, "MyIncomingChatMessageListener added.");
+                Log.i(TAG, "Connected as: " + conn.getUser());
 
             } catch (Exception e) {
                 Log.e(TAG, "Error during IMService initialization", e);
