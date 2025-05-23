@@ -33,6 +33,7 @@ public class SmsOpenHelper extends SQLiteOpenHelper {
                 + "_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + SmsTable.FROM_ACCOUNT + " TEXT,"
                 + SmsTable.TO_ACCOUNT + " TEXT,"
+                + SmsTable.SESSION_ACCOUNT + " TEXT,"
                 + SmsTable.BODY + " TEXT,"
                 + SmsTable.TIME + " LONG,"
                 + SmsTable.TYPE + " INTEGER"

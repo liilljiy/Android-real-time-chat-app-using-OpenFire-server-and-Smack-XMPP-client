@@ -16,7 +16,8 @@ import com.example.lj.dbhelper.SmsOpenHelper;
 
 public class SmsProvider extends ContentProvider {
 
-    public static final String AUTHORITY = "com.example.lj.smsprovider";
+    public static final String AUTHORITY = "com.example.lj.provider.SmsProvider";
+//    public static final String AUTHORITIES = ContactProvider.class.getCanonicalName();
     public static final Uri URI_SMS = Uri.parse("content://" + AUTHORITY + "/" + SmsOpenHelper.SmsTable.TABLE_NAME); // 使用 SmsTable.TABLE_NAME 构建 Uri
 
     // 引用 SmsOpenHelper 中的类型常量
