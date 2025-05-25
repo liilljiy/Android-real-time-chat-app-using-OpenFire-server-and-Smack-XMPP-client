@@ -7,9 +7,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,18 +33,27 @@ import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smackx.filetransfer.FileTransfer;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
+import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
 public class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ChatActivity";
     public static final String EXTRA_CONTACT_ACCOUNT = "contact_account";
     private static final int LOADER_ID = 1;
+    private static final int REQUEST_CODE_SELECT_FILE = 101;
 
     private ListView lvChatMessages;
     private EditText etMessageInput;
     private Button btnSendMessage;
+    private ImageButton btnSendFile;
 
     private String contactAccount;
     private String myAccount;
@@ -50,8 +61,6 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
     private Chat chat;
     private ChatManager chatManager;
     private IncomingChatMessageListener incomingListener;
-
-
 
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -80,6 +89,7 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
         lvChatMessages = findViewById(R.id.lv_chat_messages);
         etMessageInput = findViewById(R.id.et_message_input);
         btnSendMessage = findViewById(R.id.btn_send_message);
+        btnSendFile = findViewById(R.id.btn_send_file);
 
         chatMessageAdapter = new ChatMessageAdapter(this, null);
         lvChatMessages.setAdapter(chatMessageAdapter);
@@ -87,6 +97,7 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private void initListener() {
         btnSendMessage.setOnClickListener(v -> sendMessage());
+        btnSendFile.setOnClickListener(v -> openFilePicker());
     }
 
     private void initChat() {
@@ -100,14 +111,12 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
             EntityBareJid contactJid = JidCreate.entityBareFrom(contactAccount);
             chat = chatManager.chatWith(contactJid);
 
-            // 创建监听器
             incomingListener = (from, message, chat) -> {
                 if (from.asBareJid().equals(contactJid) && message.getBody() != null) {
                     mainHandler.post(this::loadMessages);
                 }
             };
 
-            // 添加监听器，正确的方法名
             chatManager.addIncomingListener(incomingListener);
 
         } catch (XmppStringprepException e) {
@@ -135,7 +144,7 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
                 ContentValues values = new ContentValues();
                 values.put(SmsOpenHelper.SmsTable.FROM_ACCOUNT, myAccount);
                 values.put(SmsOpenHelper.SmsTable.BODY, content);
-                values.put(SmsOpenHelper.SmsTable.TYPE, 0); // 将发送消息的类型改为 0，与 ChatMessageAdapter 中的 VIEW_TYPE_SENT 一致
+                values.put(SmsOpenHelper.SmsTable.TYPE, 0);
                 values.put(SmsOpenHelper.SmsTable.TIME, System.currentTimeMillis());
                 values.put(SmsOpenHelper.SmsTable.SESSION_ACCOUNT, contactAccount);
 
@@ -153,6 +162,81 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
         });
     }
 
+    private void openFilePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*"); // 可根据需要限制类型，例如 "image/*"
+        startActivityForResult(Intent.createChooser(intent, "选择要发送的文件"), REQUEST_CODE_SELECT_FILE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_SELECT_FILE && resultCode == RESULT_OK && data != null) {
+            Uri fileUri = data.getData();
+            if (fileUri != null) {
+                sendFile(fileUri);
+            }
+        }
+    }
+
+    private void sendFile(Uri fileUri) {
+        ThreadUtils.runInThread(() -> {
+            try {
+                String fileName = getFileName(fileUri);
+                File tempFile = copyUriToTempFile(fileUri, fileName);
+
+                EntityBareJid jid = JidCreate.entityBareFrom(contactAccount);
+                FileTransferManager manager = FileTransferManager.getInstanceFor(IMService.conn);
+                OutgoingFileTransfer transfer = manager.createOutgoingFileTransfer(jid.asEntityFullJidIfPossible());
+
+                transfer.sendFile(tempFile, "发送的文件：" + fileName);
+
+                while (!transfer.isDone()) {
+                    Thread.sleep(500);
+                }
+
+                if (transfer.getStatus().equals(FileTransfer.Status.complete)) {
+                    mainHandler.post(() -> Toast.makeText(ChatActivity.this, "文件发送成功", Toast.LENGTH_SHORT).show());
+                } else {
+                    mainHandler.post(() -> Toast.makeText(ChatActivity.this, "文件发送失败: " + transfer.getError(), Toast.LENGTH_SHORT).show());
+                }
+
+                tempFile.delete(); // 发送后删除临时文件
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                mainHandler.post(() -> Toast.makeText(ChatActivity.this, "文件发送异常", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private String getFileName(Uri uri) {
+        String result = "unknown_file";
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            if (index != -1) {
+                result = cursor.getString(index);
+            }
+            cursor.close();
+        }
+        return result;
+    }
+
+    private File copyUriToTempFile(Uri uri, String fileName) throws Exception {
+        File tempFile = File.createTempFile("send_", "_" + fileName, getCacheDir());
+        try (InputStream in = getContentResolver().openInputStream(uri);
+             FileOutputStream out = new FileOutputStream(tempFile)) {
+
+            byte[] buffer = new byte[4096];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+        }
+        return tempFile;
+    }
+
     private void initLoader() {
         LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
     }
@@ -161,14 +245,12 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
         LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this);
     }
 
-    // ... existing code ...
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == LOADER_ID) {
             String selection = SmsOpenHelper.SmsTable.SESSION_ACCOUNT + "=?";
             String[] selectionArgs = new String[]{contactAccount};
-            // 将排序方式改为降序 (DESC)，以便最新的消息在最上面
             String sortOrder = SmsOpenHelper.SmsTable.TIME + " ASC";
             return new CursorLoader(this, SmsProvider.URI_SMS, null, selection, selectionArgs, sortOrder);
         }
@@ -179,11 +261,8 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == LOADER_ID) {
             chatMessageAdapter.swapCursor(data);
-//          lvChatMessages.setSelection(chatMessageAdapter.getCount() - 1);
-            // 移除滚动到最后一项的代码，因为最新的消息已经在顶部了
         }
     }
-// ... existing code ...
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
@@ -195,7 +274,6 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // 移除监听，避免内存泄漏
         if (chatManager != null && incomingListener != null) {
             chatManager.removeIncomingListener(incomingListener);
         }
