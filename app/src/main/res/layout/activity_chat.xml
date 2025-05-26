@@ -46,7 +46,7 @@
                 android:background="@android:drawable/edit_text" />
 
             <ImageButton
-                android:id="@+id/btn_sent_feeling"
+                android:id="@+id/btn_send_emoji"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="4dp"
