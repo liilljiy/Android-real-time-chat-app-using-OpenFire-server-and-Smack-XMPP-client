@@ -66,6 +66,18 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
     private ChatManager chatManager;
     private IncomingChatMessageListener incomingListener;
 
+    private static final String[] EMOJI_LIST = {
+            "\uD83D\uDE00", // 😀
+            "\uD83D\uDE02", // 😂
+            "\uD83D\uDE09", // 😉
+            "\uD83D\uDE0D", // 😍
+            "\uD83D\uDE21", // 😡
+            "\uD83D\uDE2D", // 😭
+            "\uD83D\uDE31", // 😱
+            "\uD83D\uDE4C", // 🙌
+            "\uD83D\uDC4D", // 👍
+            "\uD83C\uDF89"  // 🎉
+    };
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -92,8 +104,7 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
         initChat();
         initLoader();
     }
-    private void sendEmoji() {
-        String emoji = "\uD83D\uDE02";  // 😂 的 Unicode 编码
+    private void sendEmoji(String emoji) {
         if (chat == null) {
             Toast.makeText(this, "聊天对象未初始化", Toast.LENGTH_SHORT).show();
             return;
@@ -112,13 +123,25 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 getContentResolver().insert(SmsProvider.URI_SMS, values);
 
-                mainHandler.post(() -> loadMessages());
+                mainHandler.post(this::loadMessages);
 
             } catch (SmackException.NotConnectedException | InterruptedException e) {
                 e.printStackTrace();
                 mainHandler.post(() -> Toast.makeText(ChatActivity.this, "表情发送失败", Toast.LENGTH_SHORT).show());
             }
         });
+    }
+
+    private void showEmojiPicker() {
+        String[] emojis = EMOJI_LIST;
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("选择一个表情")
+                .setItems(emojis, (dialog, which) -> {
+                    String selectedEmoji = emojis[which];
+                    sendEmoji(selectedEmoji);
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
     private void initViews() {
         lvChatMessages = findViewById(R.id.lv_chat_messages);
@@ -134,8 +157,8 @@ public class ChatActivity extends AppCompatActivity implements LoaderManager.Loa
         btnSendMessage.setOnClickListener(v -> sendMessage());
         btnSendFile.setOnClickListener(v -> openFilePicker());
 
-        ImageButton btnSendEmoji = findViewById(R.id.btn_send_emoji);
-        btnSendEmoji.setOnClickListener(v -> sendEmoji());
+        ImageButton btnSelectEmoji = findViewById(R.id.btn_send_emoji);
+        btnSelectEmoji.setOnClickListener(v -> showEmojiPicker());
     }
 
     private void initChat() {
