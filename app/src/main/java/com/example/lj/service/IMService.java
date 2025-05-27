@@ -103,10 +103,17 @@ public class IMService extends Service {
                     if (stanza instanceof Message) {
                         Message msg = (Message) stanza;
                         Log.i(TAG, "StanzaListener received message from: " + msg.getFrom() + " to: " + msg.getTo() + " body: " + msg.getBody());
+
+                        String body = msg.getBody();
+                        if (body != null && !body.trim().isEmpty()) {
+                            // 切回主线程显示 Toast
+                            android.os.Handler handler = new android.os.Handler(getMainLooper());
+                            handler.post(() -> {
+                                android.widget.Toast.makeText(IMService.this, "新消息: " + body, android.widget.Toast.LENGTH_SHORT).show();
+                            });
+                        }
                     }
                 }, stanza -> stanza instanceof Message);
-
-
 
                 chatManager = ChatManager.getInstanceFor(conn);
                 incomingChatMessageListenerInstance = new MyIncomingChatMessageListener();
@@ -231,7 +238,13 @@ public class IMService extends Service {
             getContentResolver().insert(SmsProvider.URI_SMS, values);
             Log.i(TAG, "Message saved to DB: " + senderAccount);
 
-            // 你可以在这里发送广播或通知 UI
+            // 弹 Toast
+            android.os.Handler handler = new android.os.Handler(getMainLooper());
+            handler.post(() -> {
+                android.widget.Toast.makeText(IMService.this, "新消息: " + message.getBody(), android.widget.Toast.LENGTH_SHORT).show();
+            });
+
+            // 你可以在这里继续发广播或通知 UI 更新
         }
     }
 }
